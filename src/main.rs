@@ -20,19 +20,7 @@ pub fn copy_recursively_fs_extra() -> Result<(), Error> {
         ..Default::default()
     };
 
-    let handle = |process_info: TransitProcess| {
-        // let state = match process_info.state {
-        //     TransitState::Normal => "Normal",
-        //     TransitState::Exists => "Exists",
-        //     TransitState::NoAccess => "NoAccess",
-        // };
-
-        // println!(
-        //     "{}, {}, {}, {}",
-        //     process_info.copied_bytes, process_info.total_bytes, process_info.file_name, state
-        // );
-        TransitProcessResult::ContinueOrAbort
-    };
+    let handle = |process_info: TransitProcess| TransitProcessResult::ContinueOrAbort;
 
     move_dir_with_progress(
         "E:/Administrator/Downloads/Code samples/Node/torrent_client_js/torrents",
