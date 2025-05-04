@@ -1,9 +1,6 @@
 #![allow(unused_variables)]
 use fs_extra::dir::{move_dir_with_progress, CopyOptions, TransitProcess, TransitProcessResult};
 use fs_extra::error::Error;
-use std::fs;
-use std::io;
-use std::path::Path;
 
 fn main() {
     match copy_recursively_fs_extra() {
