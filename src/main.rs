@@ -6,12 +6,17 @@ use fs_extra::error::Error;
 
 use lms::core::copy;
 use lms::parse::Flag;
+use std::env;
 use std::io::Error as StdError;
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+    let src = &args[1];
+    let dest = &args[2];
+
     let now = SystemTime::now();
 
-    match move_dir_with_progress() {
+    match copy_recursively_fs_extra(src, dest) {
         Ok(_) => println!("Files moved"),
         Err(e) => println!("Error {}", e),
     }
@@ -26,7 +31,7 @@ fn main() {
     }
 }
 
-pub fn copy_recursively_fs_extra() -> Result<(), Error> {
+pub fn copy_recursively_fs_extra(src: &str, dest: &str) -> Result<(), Error> {
     let options = CopyOptions {
         overwrite: true,
         content_only: true,
@@ -36,22 +41,13 @@ pub fn copy_recursively_fs_extra() -> Result<(), Error> {
 
     let handle = |process_info: TransitProcess| TransitProcessResult::ContinueOrAbort;
 
-    move_dir_with_progress(
-        "E:/Administrator/Downloads/Code samples/Node/torrent_client_js/torrents",
-        "I:/Movies/New",
-        &options,
-        handle,
-    )?;
+    move_dir_with_progress(src, dest, &options, handle)?;
 
     Ok(())
 }
 
-pub fn lms_copy() -> Result<(), StdError> {
-    let _ = copy(
-        "E:/Administrator/Downloads/Code samples/Node/torrent_client_js/torrents",
-        "I:/Movies/New",
-        Flag::from_bits_truncate(7),
-    )?;
+pub fn lms_copy(src: &str, dest: &str) -> Result<(), StdError> {
+    let _ = copy(src, dest, Flag::from_bits_truncate(7))?;
 
     Ok(())
 }
