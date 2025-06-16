@@ -1,25 +1,27 @@
 #![allow(unused_variables)]
 use std::time::SystemTime;
 
-use fs_extra::dir::{move_dir_with_progress, CopyOptions, TransitProcess, TransitProcessResult};
+use fs_extra::dir::{copy_with_progress, CopyOptions, TransitProcess, TransitProcessResult};
 use fs_extra::error::Error;
 
 use lms::core::copy;
 use lms::parse::Flag;
-use std::env;
+use std::io::stdin;
 use std::io::Error as StdError;
 
-fn main() {
-    let args: Vec<String> = env::args().collect();
-    let src = &args[1];
-    let dest = &args[2];
+fn main() -> Result<(), Error> {
+    let mut src = String::new();
+    let mut dest = String::new();
+
+    println!("Enter source directory");
+    stdin().read_line(&mut src)?;
+
+    println!("Enter destination directory");
+    stdin().read_line(&mut dest)?;
 
     let now = SystemTime::now();
 
-    match copy_recursively_fs_extra(src, dest) {
-        Ok(_) => println!("Files moved"),
-        Err(e) => println!("Error {}", e),
-    }
+    copy_recursively_fs_extra(&src.trim(), &dest.trim())?;
 
     match now.elapsed() {
         Ok(elapsed) => {
@@ -29,6 +31,8 @@ fn main() {
             println!("Error: {e:?}");
         }
     }
+
+    Ok(())
 }
 
 pub fn copy_recursively_fs_extra(src: &str, dest: &str) -> Result<(), Error> {
@@ -41,7 +45,7 @@ pub fn copy_recursively_fs_extra(src: &str, dest: &str) -> Result<(), Error> {
 
     let handle = |process_info: TransitProcess| TransitProcessResult::ContinueOrAbort;
 
-    move_dir_with_progress(src, dest, &options, handle)?;
+    copy_with_progress(src, dest, &options, handle)?;
 
     Ok(())
 }
