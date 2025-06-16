@@ -23,14 +23,8 @@ fn main() -> Result<(), Error> {
 
     copy_recursively_fs_extra(&src.trim(), &dest.trim())?;
 
-    match now.elapsed() {
-        Ok(elapsed) => {
-            println!("Files copied in {} seconds", elapsed.as_secs());
-        }
-        Err(e) => {
-            println!("Error: {e:?}");
-        }
-    }
+    let elapsed = now.elapsed().unwrap();
+    println!("Files copied in {} seconds", elapsed.as_secs());
 
     Ok(())
 }
