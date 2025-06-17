@@ -21,7 +21,7 @@ fn main() -> Result<(), Error> {
 
     let now = SystemTime::now();
 
-    copy_recursively_fs_extra(&src.trim(), &dest.trim())?;
+    copy_recursively_fs_extra(src.trim(), dest.trim())?;
 
     let elapsed = now.elapsed().unwrap();
     println!("Files copied in {} seconds", elapsed.as_secs());
