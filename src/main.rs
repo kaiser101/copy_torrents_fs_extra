@@ -12,6 +12,7 @@ use std::io::Error as StdError;
 fn main() -> Result<(), Error> {
     let mut src = String::new();
     let mut dest = String::new();
+    let mut choice_of_copy = String::new();
 
     println!("Enter source directory");
     stdin().read_line(&mut src)?;
@@ -19,9 +20,21 @@ fn main() -> Result<(), Error> {
     println!("Enter destination directory");
     stdin().read_line(&mut dest)?;
 
+    println!("Enter copy mode, 1 for fs_extra, 2 for lms");
+    stdin().read_line(&mut choice_of_copy)?;
+
     let now = SystemTime::now();
 
-    copy_recursively_fs_extra(src.trim(), dest.trim())?;
+    match choice_of_copy.trim().parse::<i32>() {
+        Ok(x) => {
+            if x == 1 {
+                copy_recursively_fs_extra(src.trim(), dest.trim())?;
+            } else if x == 2 {
+                lms_copy(src.trim(), dest.trim())?;
+            }
+        }
+        Err(err) => println!("Error in parsing choice {err}"),
+    };
 
     let elapsed = now.elapsed().unwrap();
     println!("Files copied in {} seconds", elapsed.as_secs());
