@@ -1,7 +1,9 @@
 #![allow(unused_variables)]
 use std::time::SystemTime;
 
-use fs_extra::dir::{move_dir_with_progress, CopyOptions, TransitProcess, TransitProcessResult};
+use fs_extra::dir::{
+    get_size, move_dir_with_progress, CopyOptions, TransitProcess, TransitProcessResult,
+};
 use fs_extra::error::Error;
 
 use lms::core::copy;
@@ -40,6 +42,10 @@ pub fn copy_recursively_fs_extra(src: &str, dest: &str) -> Result<(), Error> {
     };
 
     let handle = |process_info: TransitProcess| TransitProcessResult::ContinueOrAbort;
+
+    let folder_size = get_size(src)?;
+    let size_in_gb = folder_size / (1024 * 1024 * 1024);
+    println!("{:.2}", size_in_gb);
 
     move_dir_with_progress(src, dest, &options, handle)?;
 
