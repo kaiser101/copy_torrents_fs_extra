@@ -8,27 +8,39 @@ use fs_extra::error::Error;
 
 use lms::core::copy;
 use lms::parse::Flag;
+use log::{error, info, warn};
 use std::env;
 use std::io::Error as StdError;
 
 fn main() {
+    log4rs::init_file("log4rs.yml", Default::default()).unwrap();
+
     let args: Vec<String> = env::args().collect();
+    if args.len() < 3 {
+        warn!("Not enough arguments provided");
+        panic!("Usage: cargo run -- <source folder> <destination folder>");
+    }
+
     let src = &args[1];
     let dest = &args[2];
+
+    let folder_size = get_size(src).expect("Could not read folder");
+    let size_in_gb = folder_size / (1024 * 1024 * 1024);
+    info!("{:.2}", size_in_gb);
 
     let now = SystemTime::now();
 
     match copy_recursively_fs_extra(src, dest) {
-        Ok(_) => println!("Files moved"),
-        Err(e) => println!("Error {}", e),
+        Ok(_) => info!("Files moved"),
+        Err(e) => error!("Error {}", e),
     }
 
     match now.elapsed() {
         Ok(elapsed) => {
-            println!("Files copied in {} seconds", elapsed.as_secs());
+            info!("Files copied in {} seconds", elapsed.as_secs());
         }
         Err(e) => {
-            println!("Error: {e:?}");
+            error!("Error: {e:?}");
         }
     }
 }
@@ -37,15 +49,18 @@ pub fn copy_recursively_fs_extra(src: &str, dest: &str) -> Result<(), Error> {
     let options = CopyOptions {
         overwrite: true,
         content_only: true,
-        buffer_size: 4096000,
+        buffer_size: 8192000,
         ..Default::default()
     };
 
-    let handle = |process_info: TransitProcess| TransitProcessResult::ContinueOrAbort;
+    let handle = |process_info: TransitProcess| {
+        info!(
+            "{0} out of {1} bytes copied, filename = {2}",
+            process_info.copied_bytes, process_info.total_bytes, process_info.file_name,
+        );
 
-    let folder_size = get_size(src)?;
-    let size_in_gb = folder_size / (1024 * 1024 * 1024);
-    println!("{:.2}", size_in_gb);
+        TransitProcessResult::ContinueOrAbort
+    };
 
     move_dir_with_progress(src, dest, &options, handle)?;
 
