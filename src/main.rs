@@ -6,18 +6,36 @@ use fs_extra::dir::{
 };
 use fs_extra::error::Error;
 
+use fast_log::config::Config;
+use fast_log::plugin::file_split::{DateType, KeepType, Rolling, RollingType};
+use fast_log::plugin::packer::LogPacker;
 use lms::core::copy;
 use lms::parse::Flag;
-use log::{error, info, warn};
+use log::{debug, error, info, warn, LevelFilter};
 use std::env;
 use std::io::Error as StdError;
 
 fn main() {
-    log4rs::init_file("log4rs.yml", Default::default()).unwrap();
+    // log4rs::init_file("log4rs.yml", Default::default()).unwrap();
+    fast_log::init(
+        Config::new()
+            .level(LevelFilter::Info)
+            .chan_len(Some(100000))
+            .console()
+            .file_split(
+                "target/logs/",
+                Rolling::new(RollingType::ByDate(DateType::Day)),
+                KeepType::KeepNum(2),
+                LogPacker {},
+            ),
+    )
+    .unwrap();
 
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
         warn!("Not enough arguments provided");
+        log::logger().flush();
+
         panic!("Usage: cargo run -- <source folder> <destination folder>");
     }
 
@@ -43,6 +61,8 @@ fn main() {
             error!("Error: {e:?}");
         }
     }
+
+    log::logger().flush();
 }
 
 pub fn copy_recursively_fs_extra(src: &str, dest: &str) -> Result<(), Error> {
@@ -54,7 +74,7 @@ pub fn copy_recursively_fs_extra(src: &str, dest: &str) -> Result<(), Error> {
     };
 
     let handle = |process_info: TransitProcess| {
-        info!(
+        debug!(
             "{0} out of {1} bytes copied, filename = {2}",
             process_info.copied_bytes, process_info.total_bytes, process_info.file_name,
         );
