@@ -1,3 +1,5 @@
+use std::error::Error;
+use std::path::Path;
 use std::time::SystemTime;
 
 use std::env;
@@ -8,7 +10,7 @@ mod helper;
 
 use helper::{copy_recursively_fs_extra, init_log, log_folder_size};
 
-fn main() {
+fn main() -> Result<(), Box<dyn Error>> {
     init_log();
 
     let args: Vec<String> = env::args().collect();
@@ -21,6 +23,15 @@ fn main() {
 
     let src = &args[1];
     let dest = &args[2];
+
+    if !(Path::new(&src).exists() && Path::new(&dest).exists()) {
+        warn!(
+            "Either source or destination {}/{} does not exist, exiting",
+            src, dest
+        );
+        log::logger().flush();
+        return Ok(());
+    }
 
     log_folder_size(&src);
 
@@ -41,4 +52,5 @@ fn main() {
     }
 
     log::logger().flush();
+    Ok(())
 }

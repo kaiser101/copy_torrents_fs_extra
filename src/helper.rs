@@ -61,8 +61,10 @@ pub fn lms_copy(src: &str, dest: &str) -> Result<(), StdError> {
 }
 
 pub fn log_folder_size(src: &str) -> f32 {
-    let folder_size = get_size(src).expect("Could not read folder");
-    let size_in_gb = folder_size / (1024 * 1024 * 1024);
+    let folder_size = get_size(src).expect("Could not read folder") as f32;
+    let onegb = (1024 * 1024 * 1024) as f32;
+
+    let size_in_gb = folder_size / onegb;
     info!("{:.2}", size_in_gb);
 
     size_in_gb as f32
