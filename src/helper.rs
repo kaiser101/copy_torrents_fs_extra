@@ -11,9 +11,11 @@ use fast_log::plugin::packer::LogPacker;
 use lms::core::copy;
 use lms::parse::Flag;
 
-use log::{debug, info, LevelFilter};
+use log::{debug, info, warn, LevelFilter};
 
+use fs2::available_space;
 use std::io::Error as StdError;
+use std::path::Path;
 
 pub fn init_log() {
     fast_log::init(
@@ -68,4 +70,22 @@ pub fn log_folder_size(src: &str) -> f32 {
     info!("{:.2}", size_in_gb);
 
     size_in_gb as f32
+}
+
+pub fn get_available_space(dest: &str) -> f32 {
+    let path = Path::new(dest);
+
+    match available_space(path) {
+        Ok(bytes) => {
+            let gb = bytes as f32 / 1024.0 / 1024.0 / 1024.0;
+            info!("Available space on disk {:2} GB", gb);
+
+            gb
+        }
+        Err(e) => {
+            warn!("Could not get available space {}", e);
+
+            0.0
+        }
+    }
 }

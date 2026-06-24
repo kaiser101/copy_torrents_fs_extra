@@ -8,7 +8,7 @@ use log::{error, info, warn};
 
 mod helper;
 
-use helper::{copy_recursively_fs_extra, init_log, log_folder_size};
+use helper::{copy_recursively_fs_extra, get_available_space, init_log, log_folder_size};
 
 fn main() -> Result<(), Box<dyn Error>> {
     init_log();
@@ -33,7 +33,15 @@ fn main() -> Result<(), Box<dyn Error>> {
         return Ok(());
     }
 
-    log_folder_size(&src);
+    let folder_size = log_folder_size(&src);
+
+    let available_space = get_available_space(&dest);
+
+    if folder_size > available_space {
+        warn!("Not enough space available on disk, exiting!");
+        log::logger().flush();
+        return Ok(());
+    }
 
     let now = SystemTime::now();
 
