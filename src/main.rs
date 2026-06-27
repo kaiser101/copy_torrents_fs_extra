@@ -25,10 +25,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let dest = &args[2];
 
     if !(Path::new(&src).exists() && Path::new(&dest).exists()) {
-        warn!(
-            "Either source or destination {}/{} does not exist, exiting",
-            src, dest
-        );
+        warn!("Either source: {src} or destination: {dest} does not exist, exiting");
         log::logger().flush();
         return Ok(());
     }
@@ -47,7 +44,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     match copy_recursively_fs_extra(src, dest) {
         Ok(_) => info!("Files moved"),
-        Err(e) => error!("Error {}", e),
+        Err(e) => error!("Error: {e:?}"),
     }
 
     match now.elapsed() {

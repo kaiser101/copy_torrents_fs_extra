@@ -37,7 +37,7 @@ pub fn copy_recursively_fs_extra(src: &str, dest: &str) -> Result<(), Error> {
     let options = CopyOptions {
         overwrite: true,
         content_only: true,
-        buffer_size: 8192000,
+        buffer_size: 32768000,
         ..Default::default()
     };
 
