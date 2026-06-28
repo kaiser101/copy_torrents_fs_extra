@@ -49,7 +49,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     match now.elapsed() {
         Ok(elapsed) => {
-            info!("Files copied in {} seconds", elapsed.as_secs());
+            let sec = elapsed.as_secs();
+            info!("Files copied in {sec} seconds");
         }
         Err(e) => {
             error!("Error: {e:?}");
