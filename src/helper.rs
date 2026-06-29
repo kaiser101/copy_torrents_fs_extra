@@ -37,7 +37,7 @@ pub fn copy_recursively_fs_extra(src: &str, dest: &str) -> Result<(), Error> {
     let options = CopyOptions {
         overwrite: true,
         content_only: true,
-        buffer_size: 32768000,
+        buffer_size: 8192000,
         ..Default::default()
     };
 
@@ -78,12 +78,12 @@ pub fn get_available_space(dest: &str) -> f32 {
     match available_space(path) {
         Ok(bytes) => {
             let gb = bytes as f32 / 1024.0 / 1024.0 / 1024.0;
-            info!("Available space on disk {:2} GB", gb);
+            info!("Available space on disk {gb:2} GB");
 
             gb
         }
         Err(e) => {
-            warn!("Could not get available space {}", e);
+            warn!("Could not get available space {e:?}");
 
             0.0
         }
