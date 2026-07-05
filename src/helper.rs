@@ -33,6 +33,7 @@ pub fn init_log() {
     .unwrap();
 }
 
+#[allow(dead_code)]
 pub fn copy_recursively_fs_extra(src: &str, dest: &str) -> Result<(), Error> {
     let options = CopyOptions {
         overwrite: true,
@@ -67,7 +68,7 @@ pub fn log_folder_size(src: &str) -> f32 {
     let onegb = (1024 * 1024 * 1024) as f32;
 
     let size_in_gb = folder_size / onegb;
-    info!("{:.2}", size_in_gb);
+    info!("{size_in_gb:.2}");
 
     size_in_gb as f32
 }
@@ -78,7 +79,7 @@ pub fn get_available_space(dest: &str) -> f32 {
     match available_space(path) {
         Ok(bytes) => {
             let gb = bytes as f32 / 1024.0 / 1024.0 / 1024.0;
-            info!("Available space on disk {gb:2} GB");
+            info!("Available space on disk {gb:.2} GB");
 
             gb
         }
