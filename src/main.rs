@@ -8,7 +8,9 @@ use log::{error, info, warn};
 
 mod helper;
 
-use helper::{copy_recursively_fs_extra, get_available_space, init_log, log_folder_size};
+use helper::{
+    get_available_space, init_log, log_folder_size, move_recursively_fs_extra_with_progress,
+};
 
 fn main() -> Result<(), Box<dyn Error>> {
     init_log();
@@ -42,7 +44,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let now = SystemTime::now();
 
-    match copy_recursively_fs_extra(src, dest) {
+    match move_recursively_fs_extra_with_progress(src, dest) {
         Ok(_) => info!("Files moved"),
         Err(e) => error!("Error: {e:?}"),
     }

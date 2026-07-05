@@ -1,5 +1,5 @@
 use fs_extra::dir::{
-    get_size, move_dir_with_progress, CopyOptions, TransitProcess, TransitProcessResult,
+    get_size, move_dir, move_dir_with_progress, CopyOptions, TransitProcess, TransitProcessResult,
 };
 use fs_extra::error::Error;
 
@@ -34,7 +34,21 @@ pub fn init_log() {
 }
 
 #[allow(dead_code)]
-pub fn copy_recursively_fs_extra(src: &str, dest: &str) -> Result<(), Error> {
+pub fn move_recursively_fs_extra(src: &str, dest: &str) -> Result<(), Error> {
+    let options = CopyOptions {
+        overwrite: true,
+        content_only: true,
+        buffer_size: 8192000,
+        ..Default::default()
+    };
+
+    move_dir(src, dest, &options)?;
+
+    Ok(())
+}
+
+#[allow(dead_code)]
+pub fn move_recursively_fs_extra_with_progress(src: &str, dest: &str) -> Result<(), Error> {
     let options = CopyOptions {
         overwrite: true,
         content_only: true,
