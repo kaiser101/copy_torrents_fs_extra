@@ -2,6 +2,8 @@ use std::error::Error;
 use std::path::Path;
 use std::time::SystemTime;
 
+use clap::Parser;
+#[allow(unused_imports)]
 use std::env;
 
 use log::{error, info, warn};
@@ -13,21 +15,22 @@ use helper::{
     move_recursively_fs_extra_with_progress,
 };
 
+#[derive(Parser, Debug)]
+#[command(name = "file_mover", version, about)]
+struct Args {
+    src: String,
+    dest: String,
+    #[arg(short, long, default_value_t = 2)]
+    method: i32,
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     init_log();
 
-    let args: Vec<String> = env::args().collect();
-    if args.len() < 3 {
-        warn!("Not enough arguments provided");
-        log::logger().flush();
-
-        panic!("Usage: cargo run -- <source folder> <destination folder>");
-    }
-
-    let [_, src, dest, method, ..] = args.as_slice() else {
-        warn!("Not enough arguments provided");
-        todo!()
-    };
+    let args = Args::parse();
+    let src = args.src;
+    let dest = args.dest;
+    let method = args.method;
 
     if !(Path::new(&src).exists() && Path::new(&dest).exists()) {
         warn!("Either source: {src} or destination: {dest} does not exist, exiting");
@@ -47,17 +50,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let now = SystemTime::now();
 
-    match method.as_str() {
-        "1" => match move_recursively_fs_extra_with_progress(src, dest) {
+    match method {
+        1 => match move_recursively_fs_extra_with_progress(&src, &dest) {
             Ok(_) => info!("Files moved"),
             Err(e) => error!("Error: {e:?}"),
         },
-        "2" => match move_recursively_fs_extra(src, dest) {
+        2 => match move_recursively_fs_extra(&src, &dest) {
             Ok(_) => info!("Files moved"),
             Err(e) => error!("Error: {e:?}"),
         },
-        &_ => {
-            println!("Not implemented");
+        _ => {
+            info!("Not implemented");
         }
     }
 
