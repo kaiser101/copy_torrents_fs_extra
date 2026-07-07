@@ -9,7 +9,8 @@ use log::{error, info, warn};
 mod helper;
 
 use helper::{
-    get_available_space, init_log, log_folder_size, move_recursively_fs_extra_with_progress,
+    get_available_space, init_log, log_folder_size, move_recursively_fs_extra,
+    move_recursively_fs_extra_with_progress,
 };
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -23,8 +24,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         panic!("Usage: cargo run -- <source folder> <destination folder>");
     }
 
-    let src = &args[1];
-    let dest = &args[2];
+    let [_, src, dest, method, ..] = args.as_slice() else {
+        warn!("Not enough arguments provided");
+        todo!()
+    };
 
     if !(Path::new(&src).exists() && Path::new(&dest).exists()) {
         warn!("Either source: {src} or destination: {dest} does not exist, exiting");
@@ -44,9 +47,18 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let now = SystemTime::now();
 
-    match move_recursively_fs_extra_with_progress(src, dest) {
-        Ok(_) => info!("Files moved"),
-        Err(e) => error!("Error: {e:?}"),
+    match method.as_str() {
+        "1" => match move_recursively_fs_extra_with_progress(src, dest) {
+            Ok(_) => info!("Files moved"),
+            Err(e) => error!("Error: {e:?}"),
+        },
+        "2" => match move_recursively_fs_extra(src, dest) {
+            Ok(_) => info!("Files moved"),
+            Err(e) => error!("Error: {e:?}"),
+        },
+        &_ => {
+            println!("Not implemented");
+        }
     }
 
     match now.elapsed() {
