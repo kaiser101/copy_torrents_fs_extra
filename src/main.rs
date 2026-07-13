@@ -1,3 +1,4 @@
+#[allow(unused_imports)]
 use std::error::Error;
 use std::path::Path;
 use std::time::SystemTime;
@@ -6,7 +7,8 @@ use clap::Parser;
 #[allow(unused_imports)]
 use std::env;
 
-use log::{error, info, warn};
+use anyhow::Result;
+use log::{info, warn};
 
 mod helper;
 
@@ -24,7 +26,7 @@ struct Args {
     method: i32,
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<()> {
     init_log();
 
     let args = Args::parse();
@@ -51,28 +53,15 @@ fn main() -> Result<(), Box<dyn Error>> {
     let now = SystemTime::now();
 
     match method {
-        1 => match move_recursively_fs_extra_with_progress(&src, &dest) {
-            Ok(_) => info!("Files moved"),
-            Err(e) => error!("Error: {e:?}"),
-        },
-        2 => match move_recursively_fs_extra(&src, &dest) {
-            Ok(_) => info!("Files moved"),
-            Err(e) => error!("Error: {e:?}"),
-        },
+        1 => move_recursively_fs_extra_with_progress(&src, &dest)?,
+        2 => move_recursively_fs_extra(&src, &dest)?,
         _ => {
             info!("Not implemented");
         }
     }
 
-    match now.elapsed() {
-        Ok(elapsed) => {
-            let sec = elapsed.as_secs();
-            info!("Files copied in {sec} seconds");
-        }
-        Err(e) => {
-            error!("Error: {e:?}");
-        }
-    }
+    let secs = now.elapsed()?.as_secs();
+    info!("Files copied in {secs} seconds");
 
     log::logger().flush();
     Ok(())
