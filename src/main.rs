@@ -40,9 +40,9 @@ fn main() -> Result<()> {
         return Ok(());
     }
 
-    let folder_size = log_folder_size(&src);
+    let folder_size = log_folder_size(&src)?;
 
-    let available_space = get_available_space(&dest);
+    let available_space = get_available_space(&dest)?;
 
     if folder_size > available_space {
         warn!("Not enough space available on disk, exiting!");
