@@ -80,9 +80,9 @@ pub fn lms_copy(src: &str, dest: &str) -> Result<(), StdError> {
 
 pub fn log_folder_size(src: &str) -> Result<f32> {
     let folder_size = get_size(src)? as f32;
-    let onegb = (1024 * 1024 * 1024) as f32;
+    let one_gb = (1024 * 1024 * 1024) as f32;
 
-    let size_in_gb: f32 = folder_size / onegb;
+    let size_in_gb: f32 = folder_size / one_gb;
     info!("{size_in_gb:.2}");
 
     Ok(size_in_gb)
