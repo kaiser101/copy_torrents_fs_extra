@@ -34,12 +34,10 @@ pub fn init_log() {
     .unwrap();
 }
 
-#[allow(dead_code)]
 pub fn move_recursively_fs_extra(src: &str, dest: &str) -> Result<(), Error> {
     let options = CopyOptions {
         overwrite: true,
         content_only: true,
-        buffer_size: 8192000,
         ..Default::default()
     };
 
@@ -48,12 +46,10 @@ pub fn move_recursively_fs_extra(src: &str, dest: &str) -> Result<(), Error> {
     Ok(())
 }
 
-#[allow(dead_code)]
 pub fn move_recursively_fs_extra_with_progress(src: &str, dest: &str) -> Result<(), Error> {
     let options = CopyOptions {
         overwrite: true,
         content_only: true,
-        buffer_size: 8192000,
         ..Default::default()
     };
 
