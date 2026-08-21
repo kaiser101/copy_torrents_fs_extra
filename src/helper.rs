@@ -50,6 +50,7 @@ pub fn move_recursively_fs_extra_with_progress(src: &str, dest: &str) -> Result<
     let options = CopyOptions {
         overwrite: true,
         content_only: true,
+        buffer_size: 4096000,
         ..Default::default()
     };
 
