@@ -18,6 +18,8 @@ use fs2::available_space;
 use std::io::Error as StdError;
 use std::path::Path;
 
+use parcopy::{copy_dir, CopyOptions as OtherCopyOptions, Error as OtherError, OnConflict};
+
 pub fn init_log() {
     fast_log::init(
         Config::new()
@@ -50,7 +52,7 @@ pub fn move_recursively_fs_extra_with_progress(src: &str, dest: &str) -> Result<
     let options = CopyOptions {
         overwrite: true,
         content_only: true,
-        buffer_size: 4096000,
+        buffer_size: 16384000,
         ..Default::default()
     };
 
@@ -64,6 +66,23 @@ pub fn move_recursively_fs_extra_with_progress(src: &str, dest: &str) -> Result<
     };
 
     move_dir_with_progress(src, dest, &options, handle)?;
+
+    Ok(())
+}
+
+#[allow(dead_code)]
+pub fn copy_files_parcopy(src: &str, dest: &str) -> Result<(), OtherError> {
+    let options = OtherCopyOptions::default()
+        .with_parallel(16) // Limit parallelism
+        .with_on_conflict(OnConflict::Overwrite) // Overwrite existing
+        .with_block_escaping_symlinks() // Block dangerous symlinks
+        .without_fsync(); // Faster but less durable
+
+    let stats = copy_dir(Path::new(src), Path::new(dest), &options)?;
+    println!(
+        "Copied {} files, skipped {}",
+        stats.files_copied, stats.files_skipped
+    );
 
     Ok(())
 }
