@@ -59,7 +59,7 @@ pub fn move_recursively_fs_extra_with_progress(src: &str, dest: &str) -> Result<
     };
 
     let handle = |process: TransitProcess| {
-        // Only print every ~100 MB to avoid I/O bottlenecks from stdout
+        // Only print every ~500 MB to avoid I/O bottlenecks from stdout
         if process.copied_bytes % (500 * 1024 * 1024) < BUFFER_SIZE.try_into().unwrap() {
             info!(
                 "Progress: {:.1}%",
