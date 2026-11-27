@@ -60,8 +60,8 @@ pub fn move_recursively_fs_extra_with_progress(src: &str, dest: &str) -> Result<
 
     let handle = |process: TransitProcess| {
         // Only print every ~100 MB to avoid I/O bottlenecks from stdout
-        if process.copied_bytes % (100 * 1024 * 1024) < BUFFER_SIZE.try_into().unwrap() {
-            println!(
+        if process.copied_bytes % (500 * 1024 * 1024) < BUFFER_SIZE.try_into().unwrap() {
+            info!(
                 "Progress: {:.1}%",
                 (process.copied_bytes as f64 / process.total_bytes as f64) * 100.0
             );
@@ -84,7 +84,7 @@ pub fn copy_files_parcopy(src: &str, dest: &str) -> Result<(), OtherError> {
         .without_fsync(); // Faster but less durable
 
     let stats = copy_dir(Path::new(src), Path::new(dest), &options)?;
-    println!(
+    info!(
         "Copied {} files, skipped {}",
         stats.files_copied, stats.files_skipped
     );
