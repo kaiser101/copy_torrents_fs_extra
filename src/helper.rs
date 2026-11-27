@@ -21,6 +21,7 @@ use std::path::Path;
 use parcopy::{copy_dir, CopyOptions as OtherCopyOptions, Error as OtherError, OnConflict};
 
 const BUFFER_SIZE: usize = 8 * 1024 * 1024;
+const CHECK_SIZE: u64 = 250;
 
 pub fn init_log() {
     fast_log::init(
@@ -59,8 +60,8 @@ pub fn move_recursively_fs_extra_with_progress(src: &str, dest: &str) -> Result<
     };
 
     let handle = |process: TransitProcess| {
-        // Only print every ~500 MB to avoid I/O bottlenecks from stdout
-        if process.copied_bytes % (500 * 1024 * 1024) < BUFFER_SIZE.try_into().unwrap() {
+        // Only print every ~250 MB to avoid I/O bottlenecks from stdout
+        if process.copied_bytes % (CHECK_SIZE * 1024 * 1024) < BUFFER_SIZE.try_into().unwrap() {
             info!(
                 "Progress: {:.1}%",
                 (process.copied_bytes as f64 / process.total_bytes as f64) * 100.0
