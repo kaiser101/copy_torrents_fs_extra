@@ -11,7 +11,7 @@ use fast_log::plugin::packer::LogPacker;
 use lms::core::copy;
 use lms::parse::Flag;
 
-use log::{debug, info, LevelFilter};
+use log::{info, LevelFilter};
 
 use anyhow::Result;
 use fs2::available_space;
@@ -19,6 +19,8 @@ use std::io::Error as StdError;
 use std::path::Path;
 
 use parcopy::{copy_dir, CopyOptions as OtherCopyOptions, Error as OtherError, OnConflict};
+
+const BUFFER_SIZE: usize = 8 * 1024 * 1024;
 
 pub fn init_log() {
     fast_log::init(
@@ -52,15 +54,18 @@ pub fn move_recursively_fs_extra_with_progress(src: &str, dest: &str) -> Result<
     let options = CopyOptions {
         overwrite: true,
         content_only: true,
-        buffer_size: 16384000,
+        buffer_size: BUFFER_SIZE,
         ..Default::default()
     };
 
-    let handle = |process_info: TransitProcess| {
-        debug!(
-            "{0} out of {1} bytes copied, filename = {2}",
-            process_info.copied_bytes, process_info.total_bytes, process_info.file_name,
-        );
+    let handle = |process: TransitProcess| {
+        // Only print every ~100 MB to avoid I/O bottlenecks from stdout
+        if process.copied_bytes % (100 * 1024 * 1024) < BUFFER_SIZE.try_into().unwrap() {
+            println!(
+                "Progress: {:.1}%",
+                (process.copied_bytes as f64 / process.total_bytes as f64) * 100.0
+            );
+        }
 
         TransitProcessResult::ContinueOrAbort
     };
